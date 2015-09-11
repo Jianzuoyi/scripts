@@ -3,11 +3,11 @@ from Bio import SeqIO
 
 def reverse_complement(faa_filename):
 	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('>'+record.id+' reverse complement')
+		print('>'+record.id)
 		print(record.seq.reverse_complement())
 def reverse(faa_filename):
 	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('>'+record.id+' reverse')
+		print('>'+record.id)
 		print(record.seq[::-1])
 def translate(faa_filename):
 	for record in SeqIO.parse(faa_filename, 'fasta'):
@@ -31,7 +31,7 @@ def stats(faa_filename):
 
 def main():
 	if len(sys.argv) < 3:
-		sys.stderr.write("Usage: fastatool.py <sub_command> <in.fasta>\n")
+		sys.stderr.write("Usage: fastatools.py <sub_command> <in.fasta>\n")
 		sys.exit()
 	
 	sub_command = sys.argv[1]
