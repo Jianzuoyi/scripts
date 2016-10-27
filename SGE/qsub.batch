@@ -1,0 +1,2 @@
+qsub -cwd -S /bin/bash -l p=20 run_align.sh
+

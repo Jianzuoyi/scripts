@@ -1,0 +1,23 @@
+#!/bin/env bash
+ORFAM_HOME=/data/project/zuoyi/orfam
+QUERY_PRIFIX=608.fa_chunk_000000
+GENOME_DIR=human
+GENOME=hg38.fa
+
+for (( i = 0; i < 10; i++ )); do
+    TEMP_DIR=$ORFAM_HOME/results/$GENOME_DIR/temp/$QUERY_PRIFIX$i
+    mkdir -p $TEMP_DIR
+    echo "
+time $ORFAM_HOME/bin/orfam align \
+    -q $ORFAM_HOME/data/ORs/608/$QUERY_PRIFIX$i \
+    -s $ORFAM_HOME/data/$GENOME_DIR/$GENOME \
+    -o $ORFAM_HOME/results/$GENOME_DIR/$QUERY_PRIFIX$i.tblastn \
+    -T $TEMP_DIR \
+    -e 1e-10 \
+    -t 4 \
+    -v \
+    -k" > $TEMP_DIR/align_$i.sh
+
+    qsub -cwd -S /bin/bash -l p=4 -o $TEMP_DIR -e $TEMP_DIR $TEMP_DIR/align_$i.sh
+done
+
