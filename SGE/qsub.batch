@@ -1,2 +1,1 @@
-qsub -cwd -S /bin/bash -l p=20 run_align.sh
-
+qsub -cwd -S /bin/bash -l vf=20G -q all.q anno_cog.sh
