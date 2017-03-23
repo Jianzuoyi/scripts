@@ -1,56 +1,67 @@
-import sys
+#!/usr/bin/env python
+
+import argparse
+
 from Bio import SeqIO
 
-def reverse_complement(faa_filename):
-	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('>'+record.id)
-		print(record.seq.reverse_complement())
-def reverse(faa_filename):
-	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('>'+record.id)
-		print(record.seq[::-1])
-def translate(faa_filename):
-	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('>'+record.id)
-		print(record.seq.translate())
 
-def get_fasta_by_id(faa_filename, ids_filename):
-	# All ids of sequence to be extracted
-	ids = []
-	for line in open(ids_filename):
-		ids.append(line.strip())
+def _translate(args):
+    for record in SeqIO.parse(args.fasta, 'fasta'):
+        if len(record.seq) % 3 == 0:
+            try:
+                trans = record.seq.translate(cds=True, table=11)
+                print(">" + record.id)
+                print(trans)
+            except Exception as e:
+                pass
+            
+def _extract(args):
+    extract_ids = []
+    for line in args.ids:
+        if len(line.strip()) > 0:
+            extract_ids.append(line.strip())
+    for record in SeqIO.parse(args.fasta, 'fasta'):
+        if record.id in extract_ids:
+            print(record.format('fasta'))
 
-	# Get all fastas whose name are in the id list
-	for record in SeqIO.parse(faa_filename, 'fasta'):
-		if record.id in ids:
-			SeqIO.write(record, sys.stdout, 'fasta') 
 
-def stats(faa_filename):
-	for record in SeqIO.parse(faa_filename, 'fasta'):
-		print('%s\t%s'%(record.id, len(record)))
-
-def main():
-	if len(sys.argv) < 3:
-		sys.stderr.write("Usage: fastatools.py <sub_command> <in.fasta>\n")
-		sys.exit()
-	
-	sub_command = sys.argv[1]
-	faa_filename = sys.argv[2]
-	if sub_command == 'reversecomplement':
-		reverse_complement(faa_filename)
-	elif sub_command == 'reverse':
-		reverse(faa_filename)
-	elif sub_command == 'translate':
-		translate(faa_filename)
-	elif sub_command == 'getfastabyid':
-		if len(sys.argv) < 4:
-			sys.stderr.write("Usage: fasta-reverse-and-complement.py <sub_command> <faa_filename> <ids_filename>\n")
-			sys.exit()
-		get_fasta_by_id(faa_filename, sys.argv[3])
-	elif sub_command == 'stats':
-		stats(faa_filename)
-	else:
-		sys.stderr.write("unknown sub_command\n")
+def _exclude(args):
+    complement_ids = []
+    for line in args.ids:
+        if len(line.strip()) > 0:
+            complement_ids.append(line.strip())
+    for record in SeqIO.parse(args.fasta, 'fasta'):
+        if record.id not in complement_ids:
+            print(record.format('fasta'))
 
 if __name__ == '__main__':
-	main()
+    parser = argparse.ArgumentParser(
+        description="FASTA sequence manipulation tools")
+    subparser = parser.add_subparsers(help="sub-commands")
+
+    # parse translation arguments
+    parser_translate = subparser.add_parser(
+        'translate', help=("translate FASTA file"))
+    parser_translate.add_argument(
+        'fasta', type=argparse.FileType('r'), help=("FASTA file"))
+    parser_translate.set_defaults(func=_translate)
+
+    parser_extract = subparser.add_parser(
+        'extract', help=("extract sequence by ids"))
+    parser_extract.add_argument(
+        'fasta', type=argparse.FileType('r'), help=("FASTA file"))
+    parser_extract.add_argument(
+        'ids', type=argparse.FileType('r'), help=("one id in each line"))
+    parser_extract.set_defaults(func=_extract)
+
+    parser_exclude = subparser.add_parser(
+        'exclude', help=("exclude sequence by ids"))
+    parser_exclude.add_argument(
+        'fasta', type=argparse.FileType('r'), help=("FASTA file"))
+    parser_exclude.add_argument(
+        'ids', type=argparse.FileType('r'), help=("one id in each line"))
+    parser_exclude.set_defaults(func=_exclude)
+
+    # Parse arguments and run the sub-command
+    args = parser.parse_args()
+    args.func(args)
