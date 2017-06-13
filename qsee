@@ -1,0 +1,37 @@
+#!/bin/bash
+
+KILL_TASK=0
+while getopts ":k" OPTION
+do
+    case "${OPTION}" in
+    k)
+    KILL_TASK=1
+    ;;
+    esac
+done
+
+while(true)
+do
+#    echo $KILL_TASK
+    qhost | grep compute-0 | awk '{print $1}' | while read host
+    do
+	mem_free=$(qhost -h $host -F mem_free | grep mem_free | cut -f 2 -d '=' | cut -f 1 -d 'G')
+#	echo $mem_free
+	if [ $(echo "${mem_free}<10" | bc) -eq 1 ]; then
+	    if [ ${KILL_TASK} -eq 1 ]; then
+		qstat | grep $host | awk '{print $1}' | xargs -n1 -I {} qdel {}
+	    fi
+	    echo "mem_free of ${host} is less than 10G" | mail -s "Warning: memory might be leaks" zzzzzuo@163.com
+	fi
+    
+	np_load_short=$(qhost -h $host -F np_load_short | grep np_load_short | cut -f 2 -d '=')
+#	echo $np_load_short
+	if [ $(echo "${np_load_short}>1.75" | bc) -eq 1 ]; then
+	    if [ ${KILL_TASK} -eq 1 ]; then
+		qstat | grep $host | awk '{print $1}' | xargs -n1 -I {} qdel {}
+	    fi
+	    echo "${host} is overloaded" | mail -s "Warning: host is overloaded" zzzzzuo@163.com
+	fi
+    done
+    sleep 1s
+done
