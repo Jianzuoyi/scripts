@@ -420,7 +420,7 @@ def update_parameters(logfile):
 def guard_objs(obj_dict , args ,logfile):
 	bool_dir_full = False 
 	all_job_list = []
-	if args.nodu:
+	if args.du:
 		bool_dir_full = is_dir_full(args.quota , args.analysis_dir )
 	for i in sorted(obj_dict):
 		if not obj_dict[i].status == 'done':
@@ -430,14 +430,14 @@ def guard_objs(obj_dict , args ,logfile):
 		for a_job in all_job_list:
 			quota , maxjob = update_parameters(logfile)
 			#print(quota , maxjob)
-			if args.nodu:
+			if args.du:
 				bool_dir_full = is_dir_full(quota , args.analysis_dir )
 			while  bool_dir_full:
 				count_running_job , finish_job_list  = check_running_job(all_job_list , bool_dir_full )
 				done_job_list = output_log(logfile , done_job_list , obj_dict)
 				time.sleep(args.interval)
 				quota , maxjob = update_parameters(logfile)
-				if args.nodu:
+				if args.du:
 					bool_dir_full = is_dir_full(quota , args.analysis_dir )
 			else:
 				debug_log.info('{0.name} {0.status}'.format(a_job))
@@ -447,7 +447,7 @@ def guard_objs(obj_dict , args ,logfile):
 					time.sleep(args.interval)
 					print('job number reach max , waiting for finish job : {0.name}'.format(a_job))
 					quota , maxjob = update_parameters(logfile)
-					if args.nodu:
+					if args.du:
 						bool_dir_full = is_dir_full(quota , args.analysis_dir )
 					debug_log.info('{0.name} {0.status}'.format(a_job))
 					count_running_job  = check_running_job(all_job_list , bool_dir_full )
@@ -518,24 +518,27 @@ def main():
 	parser=argparse.ArgumentParser(description=__doc__,
 			formatter_class=argparse.RawDescriptionHelpFormatter,
 			epilog='author:\t{0}\nmail:\t{1}'.format(__author__,__mail__))
-	parser.add_argument(help='input file',dest='input')
+	parser.add_argument(help='input shell script file',dest='input')
 	#parser.add_argument('-o','--output',help='output log  file',dest='output',type=argparse.FileType('w'),required=True)
-	parser.add_argument('-l','--lines',  help='line number , default is [1] ',dest='line', type=int , default=1)
-	parser.add_argument('-m','--maxjob',help='max job number , default is [4]', dest='maxjob', type=int ,default=4)
-	parser.add_argument('-i','--interval',help='interval check time , default is [300]',dest='interval', type=int , default=300)
-	parser.add_argument('-q','--queue',help='job queue , default is [sci.q]' , dest='queue', default='sci.q')
-	parser.add_argument('-nr','--noreqsub',help='do not reqsub failed job ,default is reqsub', dest='noreqsub', action='store_true')
-	parser.add_argument('-nc','--nocontinue',help='do not continue with unfinish log , default is continue',dest='nocontinue',action='store_false')
-	parser.add_argument('-re','--resource',help='resouce list ,default is [ "vf=1G -l p=1" ] ', dest = 'resource',default=' vf=1G -l p=1 ')
-	parser.add_argument('-prefix','--jobprefix', help='job prefix ,default is [work]',dest='prefix' ,default='work')
-	parser.add_argument('-maxcycle','--maxcycle',help='max cycle , ,default is [5]', dest='max_cycle',default=5,type=int)
-	parser.add_argument('-quota', '--quota', help='quota,default is [100000000000000000G]', dest='quota' , default='100000000000000000G')
-	parser.add_argument('-analysis_dir', '--analysis_dir', help='analysis dir,default is [shell/../..]',dest='analysis_dir' )
-	parser.add_argument('-nodu','--nodu',help='do not check disk,default is [du]',dest='nodu',action='store_false')
+	parser.add_argument('-l','--lines',  help='line number, default is [1] ',dest='line', type=int , default=1)
+	parser.add_argument('-m','--maxjob',help='max job number, default is [10]', dest='maxjob', type=int ,default=10)
+	parser.add_argument('-r','--resource',help='resouce list, default is [ "-l vf=1G,p=1" ] ', dest = 'resource',default='vf=1G,p=1')
+	parser.add_argument('-q','--queue',help='job queue , default is [all.q]' , dest='queue', default='all.q')
+	parser.add_argument('-i','--interval',help='interval check time, default is [30]',dest='interval', type=int , default=30)
+	parser.add_argument('-p','--prefix', help='job prefix, default is [run]',dest='prefix' ,default='run')
+	parser.add_argument('-nc','--nocontinue',help='do not continue with unfinish log, default is continue',dest='nocontinue',action='store_true')
+	parser.add_argument('-nr','--noreqsub',help='do not reqsub failed job, default is reqsub', dest='noreqsub', action='store_true')
+	parser.add_argument('-maxcycle','--maxcycle',help='max cycle, default is [5]', dest='max_cycle',default=5,type=int)
+	parser.add_argument('-du','--du',help='check disk, default is false',dest='du',action='store_true')
+	parser.add_argument('-analysis_dir', '--analysis_dir', help='analysis dir, default is [shell/../..]',dest='analysis_dir' )
+	parser.add_argument('-quota', '--quota', help='quota, default is [100000000000000000G]', dest='quota' , default='100000000000000000G')
 	args=parser.parse_args()
 	
-	#print(args.noreqsub)
-	#sys.exit()
+	print(args.resource)
+	print(args.noreqsub)
+	print(args.du)
+	print(args.nocontinue)
+#	sys.exit()	
 	work_dir = os.path.abspath(os.path.dirname(args.input))
 	if args.analysis_dir == None:
 		args.analysis_dir = '{0}/../../'.format(os.path.abspath(work_dir))
@@ -548,7 +551,7 @@ def main():
 	debug_log.info('generate shell done')
 	modify_job_object( obj_dict , args )
 	#print( obj_dict )
-	if args.nocontinue:
+	if not args.nocontinue:
 		check_obj_status(obj_dict ,  args.input)
 	debug_log.info('modify object status done')
 
