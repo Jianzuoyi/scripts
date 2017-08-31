@@ -530,7 +530,7 @@ def main():
 	parser.add_argument('-nr','--noreqsub',help='do not reqsub failed job, [NO]', dest='noreqsub', action='store_true')
 	parser.add_argument('-mc','--maxcycle',help='max cycle, [5]', dest='max_cycle',default=5,type=int)
 	parser.add_argument('-du','--du',help='check disk with du command, [NO]',dest='du',action='store_true')
-	parser.add_argument('-d', '--work_dir', help='work dir, [shell/../..]',dest='work_dir' )
+	parser.add_argument('-d', '--work_dir', help='work dir, [input/../..]',dest='work_dir' )
 	parser.add_argument('-quota', '--quota', help='quota, [100000000000000000G]', dest='quota' , default='100000000000000000G')
 	args=parser.parse_args()
 	
