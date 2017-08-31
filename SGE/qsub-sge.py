@@ -543,12 +543,12 @@ def main():
 	with open(logfile,'w') as f_out:
 		f_out.write('DISK_QUOTA\t{0}\nMax_Jobs\t{1}\n'.format(args.quota, args.maxjob))
 	shell_dir , obj_dict  = generate_split_shell( args.input , args.line , args.prefix , args.max_cycle)
-	debug_log.info('generate shell done')
+	debug_log.info('generate task done')
 	modify_job_object( obj_dict , args )
 	#print( obj_dict )
 	if args.goon:
 		check_obj_status(obj_dict ,  args.input)
-	debug_log.info('modify object status done')
+	debug_log.info('modify task status done')
 
 	guard_objs(obj_dict , args , logfile)
 	output_finish_log(obj_dict , logfile)
