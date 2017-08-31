@@ -38,8 +38,8 @@ import random
 bindir = os.path.abspath(os.path.dirname(__file__))
 
 qhost_counter = 0 
-__author__='Liu Tao'
-__mail__= 'taoliu@annoroad.com'
+__original__='Liu Tao  taoliu@annoroad.com'
+__revision__= 'Zuoyi Jian jianzuoyi@qq.com'
 
 pat1=re.compile('^\s+$')
 def mylogger(script):
@@ -517,25 +517,25 @@ def output_finish_log(obj_dict , logfile):
 def main():
 	parser=argparse.ArgumentParser(description=__doc__,
 			formatter_class=argparse.RawDescriptionHelpFormatter,
-			epilog='author:\t{0}\nmail:\t{1}'.format(__author__,__mail__))
+			epilog='original:\t{0}\nrevision:\t{1}'.format(__original__,__revision__))
 	parser.add_argument(help='input shell script file',dest='input')
 	#parser.add_argument('-o','--output',help='output log  file',dest='output',type=argparse.FileType('w'),required=True)
-	parser.add_argument('-l','--lines',  help='line number, default is [1] ',dest='line', type=int , default=1)
-	parser.add_argument('-m','--maxjob',help='max job number, default is [10]', dest='maxjob', type=int ,default=10)
-	parser.add_argument('-r','--resource',help='resouce list, default is [ "-l vf=1G,p=1" ] ', dest = 'resource',default='vf=1G,p=1')
-	parser.add_argument('-q','--queue',help='job queue , default is [all.q]' , dest='queue', default='all.q')
-	parser.add_argument('-i','--interval',help='interval check time, default is [30]',dest='interval', type=int , default=30)
-	parser.add_argument('-p','--prefix', help='job prefix, default is [run]',dest='prefix' ,default='run')
-	parser.add_argument('-nc','--nocontinue',help='do not continue with unfinish log, default is continue',dest='nocontinue',action='store_true')
-	parser.add_argument('-nr','--noreqsub',help='do not reqsub failed job, default is reqsub', dest='noreqsub', action='store_true')
-	parser.add_argument('-maxcycle','--maxcycle',help='max cycle, default is [5]', dest='max_cycle',default=5,type=int)
-	parser.add_argument('-du','--du',help='check disk, default is false',dest='du',action='store_true')
-	parser.add_argument('-analysis_dir', '--analysis_dir', help='analysis dir, default is [shell/../..]',dest='analysis_dir' )
-	parser.add_argument('-quota', '--quota', help='quota, default is [100000000000000000G]', dest='quota' , default='100000000000000000G')
+	parser.add_argument('-l','--lines',  help='line number per task, [1] ',dest='line', type=int , default=1)
+	parser.add_argument('-m','--maxjob',help='max job number,  [10]', dest='maxjob', type=int ,default=10)
+	parser.add_argument('-r','--resource',help='resouce list,  ["-l vf=1G,p=1"] ', dest = 'resource',default='vf=1G,p=1')
+	parser.add_argument('-q','--queue',help='job queue,  [all.q]' , dest='queue', default='all.q')
+	parser.add_argument('-p','--prefix', help='job prefix, [run]',dest='prefix' ,default='run')
+	parser.add_argument('-i','--interval',help='interval check time, [200]',dest='interval', type=int , default=200)
+	parser.add_argument('-c','--continue',help='continue with unfinish log, [NO]',dest='goon',action='store_true')
+	parser.add_argument('-nr','--noreqsub',help='do not reqsub failed job, [NO]', dest='noreqsub', action='store_true')
+	parser.add_argument('-mc','--maxcycle',help='max cycle, [5]', dest='max_cycle',default=5,type=int)
+	parser.add_argument('-du','--du',help='check disk with du command, [NO]',dest='du',action='store_true')
+	parser.add_argument('-d', '--work_dir', help='work dir, [shell/../..]',dest='work_dir' )
+	parser.add_argument('-quota', '--quota', help='quota, [100000000000000000G]', dest='quota' , default='100000000000000000G')
 	args=parser.parse_args()
 	
 	work_dir = os.path.abspath(os.path.dirname(args.input))
-	if args.analysis_dir == None:
+	if args.work_dir == None:
 		args.analysis_dir = '{0}/../../'.format(os.path.abspath(work_dir))
 	global debug_log
 	debug_log = mylogger(args.input)
@@ -546,7 +546,7 @@ def main():
 	debug_log.info('generate shell done')
 	modify_job_object( obj_dict , args )
 	#print( obj_dict )
-	if not args.nocontinue:
+	if args.goon:
 		check_obj_status(obj_dict ,  args.input)
 	debug_log.info('modify object status done')
 
