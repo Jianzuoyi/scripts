@@ -534,11 +534,6 @@ def main():
 	parser.add_argument('-quota', '--quota', help='quota, default is [100000000000000000G]', dest='quota' , default='100000000000000000G')
 	args=parser.parse_args()
 	
-	print(args.resource)
-	print(args.noreqsub)
-	print(args.du)
-	print(args.nocontinue)
-#	sys.exit()	
 	work_dir = os.path.abspath(os.path.dirname(args.input))
 	if args.analysis_dir == None:
 		args.analysis_dir = '{0}/../../'.format(os.path.abspath(work_dir))
