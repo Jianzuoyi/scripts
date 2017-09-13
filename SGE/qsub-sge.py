@@ -521,7 +521,7 @@ def main():
 	parser.add_argument(help='input shell script file',dest='input')
 	#parser.add_argument('-o','--output',help='output log  file',dest='output',type=argparse.FileType('w'),required=True)
 	parser.add_argument('-l','--lines',  help='line number per task, [1] ',dest='line', type=int , default=1)
-	parser.add_argument('-m','--maxjob',help='max job number,  [20]', dest='maxjob', type=int ,default=20)
+	parser.add_argument('-m','--maxjob',help='max job number,  [50]', dest='maxjob', type=int ,default=50)
 	parser.add_argument('-r','--resource',help='resouce list,  ["vf=1G,p=1"] ', dest = 'resource',default='vf=1G,p=1')
 	parser.add_argument('-q','--queue',help='job queue,  [all.q]' , dest='queue', default='all.q')
 	parser.add_argument('-p','--prefix', help='job prefix, [run]',dest='prefix' ,default='run')
