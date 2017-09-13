@@ -99,7 +99,9 @@ class Job():
 		self.resource = resource
 	def qsub(self, f_out):
 		count = 0 
-		cmd = 'cd {1} && qsub -cwd -S /bin/sh -q {0.queue} -l {0.resource} {0.script}'.format(self , os.path.abspath(os.path.dirname(self.script)))
+		q_option = '-q {0.queue} '.format(self) if self.queue else ""
+		cmd = 'cd {2} && qsub -cwd -S /bin/sh {1}-l {0.resource} {0.script}'.format(self , q_option, os.path.abspath(os.path.dirname(self.script)))
+		print(cmd)
 		while count <= 10 : 
 			#print(cmd)
 			qsub = "".join(popen(cmd))
@@ -523,7 +525,7 @@ def main():
 	parser.add_argument('-l','--lines',  help='line number per task, [1] ',dest='line', type=int , default=1)
 	parser.add_argument('-m','--maxjob',help='max job number,  [50]', dest='maxjob', type=int ,default=50)
 	parser.add_argument('-r','--resource',help='resouce list,  ["vf=1G,p=1"] ', dest = 'resource',default='vf=1G,p=1')
-	parser.add_argument('-q','--queue',help='job queue,  [all.q]' , dest='queue', default='all.q')
+	parser.add_argument('-q','--queue',help='job queue,  [null]' , dest='queue', default='')
 	parser.add_argument('-p','--prefix', help='job prefix, [run]',dest='prefix' ,default='run')
 	parser.add_argument('-i','--interval',help='interval check time (s), [60]',dest='interval', type=int , default=60)
 	parser.add_argument('-c','--continue',help='continue with unfinish log, [NO]',dest='goon',action='store_true')
