@@ -101,7 +101,6 @@ class Job():
 		count = 0 
 		q_option = '-q {0.queue} '.format(self) if self.queue else ""
 		cmd = 'cd {2} && qsub -cwd -S /bin/sh {1}-l {0.resource} {0.script}'.format(self , q_option, os.path.abspath(os.path.dirname(self.script)))
-		print(cmd)
 		while count <= 10 : 
 			#print(cmd)
 			qsub = "".join(popen(cmd))
